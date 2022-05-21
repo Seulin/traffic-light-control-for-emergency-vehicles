@@ -24,7 +24,7 @@ def flatten_list(_2d_list):
     return flat_list
 
 
-sumoCmd = ["sumo", "-c", "osm.sumocfg"]
+sumoCmd = ["sumo-gui", "-c", "osm.sumocfg"]
 traci.start(sumoCmd)
 
 packVehicleData = []
@@ -130,6 +130,7 @@ while traci.simulation.getMinExpectedNumber() > 0:
 
                 ##----------CONTROL Vehicles and Traffic Lights----------##
 
+"""
                 #***SET FUNCTION FOR VEHICLES***
                 #REF: https://sumo.dlr.de/docs/TraCI/Change_Vehicle_State.html
                 NEWSPEED = 15 # value in m/s (15 m/s = 54 km/hr)
@@ -145,7 +146,7 @@ while traci.simulation.getMinExpectedNumber() > 0:
                 tfl = "cluster_4260917315_5146794610_5146796923_5146796930_5704674780_5704674783_5704674784_5704674787_6589790747_8370171128_8370171143_8427766841_8427766842_8427766845"
                 traci.trafficlight.setPhaseDuration(tfl, trafficlightduration[randrange(6)])
                 traci.trafficlight.setRedYellowGreenState(tfl, trafficsignal[randrange(6)])
-
+"""
                 ##------------------------------------------------------##
 
 

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2022-05-11 22:06:59 by Eclipse SUMO netconvert Version 1.13.0
+-->
+
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/netconvertConfiguration.xsd">
+
+    <input>
+        <type-files value="C:\Users\ths06\Desktop\2022-1\Reinforcement_Learning-Prof.Lee\Project\sumo\Lib\site-packages\sumo\data\typemap\osmNetconvert.typ.xml,C:\Users\ths06\Desktop\2022-1\Reinforcement_Learning-Prof.Lee\Project\sumo\Lib\site-packages\sumo\data\typemap\osmNetconvertUrbanDe.typ.xml,C:\Users\ths06\Desktop\2022-1\Reinforcement_Learning-Prof.Lee\Project\sumo\Lib\site-packages\sumo\data\typemap\osmNetconvertPedestrians.typ.xml"/>
+        <osm-files value="osm_bbox.osm.xml.gz"/>
+    </input>
+
+    <output>
+        <output-file value="osm.net.xml"/>
+        <output.street-names value="true"/>
+        <output.original-names value="true"/>
+        <ptstop-output value="osm_stops.add.xml"/>
+        <ptline-output value="osm_ptlines.xml"/>
+    </output>
+
+    <processing>
+        <geometry.remove value="true"/>
+        <roundabouts.guess value="true"/>
+    </processing>
+
+    <tls_building>
+        <tls.discard-simple value="true"/>
+        <tls.join value="true"/>
+        <tls.guess-signals value="true"/>
+        <tls.default-type value="actuated"/>
+    </tls_building>
+
+    <ramp_guessing>
+        <ramps.guess value="true"/>
+    </ramp_guessing>
+
+    <junctions>
+        <junctions.join value="true"/>
+        <junctions.corner-detail value="5"/>
+    </junctions>
+
+    <pedestrian>
+        <crossings.guess value="true"/>
+    </pedestrian>
+
+    <railway>
+        <railway.topology.repair value="true"/>
+    </railway>
+
+    <formats>
+        <osm.sidewalks value="true"/>
+    </formats>
+
+    <report>
+        <verbose value="true"/>
+    </report>
+
+</configuration>
