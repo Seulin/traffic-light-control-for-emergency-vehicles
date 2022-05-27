@@ -133,3 +133,6 @@ Include
 Lib
 Scripts
 pyvenv.cfg
+
+# sumo-rl library
+sumo-rl
