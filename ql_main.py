@@ -27,7 +27,7 @@ if __name__ == '__main__':
     try:
         tag = int(sys.argv[1])
     except IndexError:
-        tag = 21
+        tag = 4
 
     net_file, rou_file = get_map(tag)
 
