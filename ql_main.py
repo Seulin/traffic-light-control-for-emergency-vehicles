@@ -9,7 +9,7 @@ if 'SUMO_HOME' in os.environ:
 else:
     sys.exit("Please declare the environment variable 'SUMO_HOME'")
 
-import traci
+# import traci
 import sumo_rl
 from sumo_rl.agents import QLAgent
 from sumo_rl.exploration import EpsilonGreedy
@@ -27,7 +27,7 @@ if __name__ == '__main__':
     try:
         tag = int(sys.argv[1])
     except IndexError:
-        tag = 2
+        tag = 21
 
     net_file, rou_file = get_map(tag)
 
@@ -41,6 +41,9 @@ if __name__ == '__main__':
 
     for run in range(1, runs+1):
         env.reset()
+
+        traci = env.unwrapped.env.sumo
+
         initial_states = {ts: env.observe(ts) for ts in env.agents}
         ql_agents = {ts: QLAgent(starting_state=env.unwrapped.env.encode(initial_states[ts], ts),
                                  state_space=env.observation_space(ts),
@@ -56,7 +59,6 @@ if __name__ == '__main__':
 
             action = ql_agents[agent].act() if not done else None
             env.step(action)
-
 
         env.unwrapped.env.save_csv(out_folder(tag) + 'ql', run)
         env.close()
