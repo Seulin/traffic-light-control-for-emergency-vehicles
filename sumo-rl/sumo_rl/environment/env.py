@@ -282,8 +282,8 @@ class SumoEnvironment(gym.Env):
                 return sum(speed) / len(speed)
             else:
                 return 0
-        ###
         ev_reward = _emergency_vehicle_reward(self)
+        ###
         self.rewards.update({ts: self.traffic_signals[ts].compute_reward()+ev_reward for ts in self.ts_ids if self.traffic_signals[ts].time_to_act})
         return {ts: self.rewards[ts] for ts in self.rewards.keys() if self.traffic_signals[ts].time_to_act}
 

@@ -60,6 +60,9 @@ if __name__ == '__main__':
 
         for i, agent in enumerate(env.agent_iter()):
             ###
+            if traci.vehicle.getIDCount() == 0 and i > 100:
+                break
+
             if i % 1000 == 0:
                 print("CURRENT LOOP", i, time.time()-start)
             ###
@@ -75,13 +78,13 @@ if __name__ == '__main__':
             if i % 5000 == 0:
                 env.unwrapped.env.save_csv(out_folder(tag) + f'QL{i}_{time.localtime().tm_hour}_{time.localtime().tm_min}', run)
                 print("EV Travel time", env.unwrapped.env.ev_travel_time)
-
-            if traci.vehicle.getIDCount() == 0 and i > 100:
-                break
             ###
 
+        ###
         print('EV Travel time', env.unwrapped.env.ev_travel_time)
         env.unwrapped.env.save_csv(out_folder(tag) + f'QL_{time.localtime().tm_hour}_{time.localtime().tm_min}', run)
+        ###
+
         env.close()
 
         print("Elapsed time: ", time.time()-start)

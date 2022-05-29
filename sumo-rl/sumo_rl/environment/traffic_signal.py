@@ -129,8 +129,25 @@ class TrafficSignal:
             
     def compute_reward(self):
         self.last_reward = self._waiting_time_reward() 
+
+        #self.last_reward = self._average_speed_reward() - self._waiting_time_reward3()
+        #self.last_reward = self._my_reward()
         return self.last_reward
 
+    def _my_reward(self):
+        veh_on_lane = 0
+        for lane in self.lanes:
+            veh_list = self.sumo.lane.getLastStepVehicleIDs(lane)
+            #self.sumo.vehicle.getSpeed(v)
+            stopped_veh = []
+            for veh in veh_list:
+                if self.sumo.vehicle.getSpeed(veh) == 0:
+                    stopped_veh.append(veh)
+                    veh_on_lane -= 1
+                else:
+                    veh_on_lane += 1
+        return veh_on_lane
+    
     def _pressure_reward(self):
         return -self.get_pressure()
     
@@ -153,7 +170,7 @@ class TrafficSignal:
         return reward ### @@@@ change -ts_wait?
 
     def _waiting_time_reward2(self):
-        ts_wait = sum(self.get_waiting_time())
+        ts_wait = sum(self.get_waiting_time_per_lane())
         self.last_measure = ts_wait
         if ts_wait == 0:
             reward = 1.0
@@ -162,7 +179,7 @@ class TrafficSignal:
         return reward
 
     def _waiting_time_reward3(self):
-        ts_wait = sum(self.get_waiting_time())
+        ts_wait = sum(self.get_waiting_time_per_lane())
         reward = -ts_wait
         self.last_measure = ts_wait
         return reward
@@ -188,7 +205,11 @@ class TrafficSignal:
         vehs = self._get_veh_list()
         for v in vehs:
             avg_speed += self.sumo.vehicle.getSpeed(v) / self.sumo.vehicle.getAllowedSpeed(v)
-        return avg_speed / len(vehs)
+
+        if len(vehs) == 0:
+            return 0
+        else:
+            return avg_speed / len(vehs)
 
     def get_pressure(self):
         return abs(sum(self.sumo.lane.getLastStepVehicleNumber(lane) for lane in self.lanes) - sum(self.sumo.lane.getLastStepVehicleNumber(lane) for lane in self.out_lanes))
