@@ -22,19 +22,19 @@ if __name__ == '__main__':
     alpha = 0.1
     gamma = 0.99
     decay = 1
-    runs = 1
+    runs = 5
 
     try:
         tag = int(sys.argv[1])
     except IndexError:
-        tag = 4
+        tag = 2
 
     net_file, rou_file = get_map(tag)
 
     env = sumo_rl.env(
                           net_file=net_file,
                           route_file=rou_file,
-                          use_gui=True,
+                          use_gui=False,
                           min_green=8,
                           delta_time=5,
                           num_seconds=80000)
@@ -52,7 +52,12 @@ if __name__ == '__main__':
                                  gamma=gamma,
                                  exploration_strategy=EpsilonGreedy(initial_epsilon=0.05, min_epsilon=0.005, decay=decay)) for ts in env.agents}
         infos = []
+        delay_stack = 100
         for i, agent in enumerate(env.agent_iter(max_iter=10**9)):
+            if delay_stack < 1 and traci.vehicle.getIDCount() == 0:
+                break
+            else:
+                delay_stack -= 1
             s, r, done, info = env.last()
             if ql_agents[agent].action is not None:
                 ql_agents[agent].learn(next_state=env.unwrapped.env.encode(s, agent), reward=r)

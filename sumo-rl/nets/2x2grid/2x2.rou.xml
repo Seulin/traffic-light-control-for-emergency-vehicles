@@ -1,8 +1,8 @@
 <routes>
-    <flow id="flow_1" from="-h11" to="-h13" begin="0" end="1000" probability="0.1" departSpeed="max" departPos="base" departLane="best"/>
-    <flow id="flow_2" from="-h21" to="-h23" begin="0" end="1000" probability="0.1" departSpeed="max" departPos="base" departLane="best"/>
-    <flow id="flow_3" from="-v11" to="-v13" begin="0" end="1000" probability="0.1" departSpeed="max" departPos="base" departLane="best"/> 
-    <flow id="flow_4" from="-v21" to="-v23" begin="0" end="1000" probability="0.1" departSpeed="max" departPos="base" departLane="best"/> 
+    <flow id="flow_1" from="-h11" to="-h13" begin="0" end="11111" probability="0.1" departSpeed="max" departPos="base" departLane="best"/>
+    <flow id="flow_2" from="-h21" to="-h23" begin="0" end="11111" probability="0.1" departSpeed="max" departPos="base" departLane="best"/>
+    <flow id="flow_3" from="-v11" to="-v13" begin="0" end="11111" probability="0.1" departSpeed="max" departPos="base" departLane="best"/> 
+    <flow id="flow_4" from="-v21" to="-v23" begin="0" end="11111" probability="0.1" departSpeed="max" departPos="base" departLane="best"/> 
 
     <route id="r_0" edges="v13 -h22 v22 -h13"/>
     <vehicle id="EV" depart="100.00" color="red" route="r_0"/>
