@@ -7,6 +7,8 @@ if 'SUMO_HOME' in os.environ:
     sys.path.append(tools)
 else:
     sys.exit("Please declare the environment variable 'SUMO_HOME'")
+sys.path.append('sumo-rl/')
+
 import numpy as np
 from sumo_rl import SumoEnvironment
 import traci

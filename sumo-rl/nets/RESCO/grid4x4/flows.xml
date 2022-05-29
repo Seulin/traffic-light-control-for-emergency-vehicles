@@ -10,6 +10,12 @@
 
 -->
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <!-- <vehicle id="EV" depart="0.00" departSpeed="20.00" color="red">
+        <route edges="bottom3D0 D0C0 C0C1 C1B1 B1B2 B2A2 A2A3 A3top0"/>
+    </vehicle> -->
+    <vType id="type1" length="6"/>
+    <flow id="EV_flow" type="type1" speedFactor="5" color="red" departSpeed="20.00" begin="0" end="4000" number="10" from="bottom3D0" to="A3top0"/>
+
     <flow id="0" begin="0" end="5000" period="200.0" from="D1C1" to="A0B0"/>
     <flow id="1" begin="0" end="5000" period="200.0" from="B2A2" to="A3left3"/>
     <flow id="2" begin="0" end="5000" period="200.0" from="D3D2" to="C2D2"/>

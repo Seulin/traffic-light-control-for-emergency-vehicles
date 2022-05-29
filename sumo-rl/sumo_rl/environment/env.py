@@ -1,6 +1,8 @@
 import os
+from subprocess import IDLE_PRIORITY_CLASS
 import sys
 from pathlib import Path
+from tkinter import W
 from typing import Optional, Union, Tuple
 import sumo_rl
 if 'SUMO_HOME' in os.environ:
@@ -175,6 +177,10 @@ class SumoEnvironment(gym.Env):
         self.run += 1
         self.metrics = []
 
+    
+        num_ev = 50
+        self.ev_travel_time = [0 for i in range(num_ev)]
+
         if seed is not None:
             self.sumo_seed = seed
         self._start_simulation()
@@ -258,7 +264,27 @@ class SumoEnvironment(gym.Env):
         return {ts: self.observations[ts].copy() for ts in self.observations.keys() if self.traffic_signals[ts].time_to_act}
 
     def _compute_rewards(self):
-        self.rewards.update({ts: self.traffic_signals[ts].compute_reward() for ts in self.ts_ids if self.traffic_signals[ts].time_to_act})
+        ###
+        self.current_ev = []
+        vehicles = self.sumo.vehicle.getIDList()
+        for veh in vehicles:
+            if veh.startswith("EV_flow"):
+                self.current_ev.append(veh)
+        self.get_travel_time()
+        def _emergency_vehicle_reward(self):
+            speed = []
+            for veh in self.current_ev:
+                try:
+                    speed.append(self.sumo.vehicle.getSpeed(veh))
+                except:
+                    pass
+            if speed != []:
+                return sum(speed) / len(speed)
+            else:
+                return 0
+        ###
+        ev_reward = _emergency_vehicle_reward(self)
+        self.rewards.update({ts: self.traffic_signals[ts].compute_reward()+ev_reward for ts in self.ts_ids if self.traffic_signals[ts].time_to_act})
         return {ts: self.rewards[ts] for ts in self.rewards.keys() if self.traffic_signals[ts].time_to_act}
 
     @property
@@ -284,7 +310,25 @@ class SumoEnvironment(gym.Env):
             'reward': self.traffic_signals[self.ts_ids[0]].last_reward,
             'total_stopped': sum(self.traffic_signals[ts].get_total_queued() for ts in self.ts_ids),
             'total_wait_time': sum(sum(self.traffic_signals[ts].get_waiting_time_per_lane()) for ts in self.ts_ids)
+            ### emergency_vehicle_speed
+            ### average speed of all vehicles
         }
+
+
+    ###
+    def get_travel_time(self):
+        # for lane in self.lanes:
+        #     veh_list = self.sumo.lane.getLastStepVehicleIDs(lane)
+        for veh in self.current_ev:
+            index = int(veh[8:])
+            try:
+                if self.sumo.vehicle.getLaneID(veh).startswith("h21"):
+                #if "A3top0" == self.sumo.vehicle.getLaneID(id):
+                    self.ev_travel_time[index] = self.sumo.vehicle.getTimeLoss(veh)
+            except:
+                pass
+        return self.ev_travel_time
+    ###
 
     def close(self):
         if self.sumo is None:

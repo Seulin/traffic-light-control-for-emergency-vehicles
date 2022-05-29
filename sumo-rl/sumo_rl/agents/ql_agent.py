@@ -17,6 +17,7 @@ class QLAgent:
         self.acc_reward = 0
 
     def act(self):
+        # print('Q table', self.q_table)
         self.action = self.exploration.choose(self.q_table, self.state, self.action_space)
         return self.action
 

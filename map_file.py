@@ -16,7 +16,7 @@ def get_net(tag: int):
 
 def get_rou(tag: int):
     if tag == 2: # 2x2 grid
-        rou_file = 'sumo-rl/nets/2x2grid/2x2.rou.xml'
+        rou_file = 'sumo-rl/nets/2x2grid/flows.xml'
     elif tag == 4: # 4x4 grid
         rou_file = 'sumo-rl/nets/RESCO/grid4x4/flows.xml'
         #rou_file = 'sumo-rl/nets/RESCO/grid4x4/grid4x4_1.rou.xml'
@@ -47,7 +47,7 @@ def out_folder(tag: int): # out_file folder
     if tag == 2: # 2x2 grid
         out_file = 'outputs/2x2/'
     elif tag == 4: # 4x4 grid
-        out_file = 'outpus/4x4/'
+        out_file = 'outputs/4x4/'
     elif tag == 7:
         rou_file = 'outputs/ingolstadt7/'
     elif tag == 21:

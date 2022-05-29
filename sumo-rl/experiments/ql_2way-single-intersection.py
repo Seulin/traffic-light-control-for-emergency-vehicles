@@ -9,6 +9,9 @@ if 'SUMO_HOME' in os.environ:
 else:
     sys.exit("Please declare the environment variable 'SUMO_HOME'")
 
+# sys.path.append('../')
+
+
 import traci
 from sumo_rl import SumoEnvironment
 from sumo_rl.agents import QLAgent
