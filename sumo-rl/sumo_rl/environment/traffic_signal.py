@@ -122,10 +122,26 @@ class TrafficSignal:
     def compute_observation(self):
         phase_id = [1 if self.green_phase == i else 0 for i in range(self.num_green_phases)]  # one-hot encoding
         min_green = [0 if self.time_since_last_phase_change < self.min_green + self.yellow_time else 1]
-        density = self.get_lanes_density()
+        density = [] #self.get_lanes_density()
         queue = self.get_lanes_queue()
-        observation = np.array(phase_id + min_green + density + queue, dtype=np.float32)
+
+        ###
+        ev_info = self.get_ev_info() # index of lane 
+        ###
+
+        observation = np.array(phase_id + min_green + density + queue + ev_info, dtype=np.float32)
         return observation
+
+    ### 
+    def get_ev_info(self):
+        ev_lane = [-1 for i in range(len(self.lanes))]
+        for i, lane in enumerate(self.lanes):
+            vehicles = self.sumo.lane.getLastStepVehicleIDs(lane)
+            for veh in vehicles:
+                if veh.startswith("EV_flow"):
+                    ev_lane[i] = 1
+                    #[i, self.sumo.vehicle.getSpeed(veh)]
+        return ev_lane
             
     def compute_reward(self):
         self.last_reward = self._waiting_time_reward() 

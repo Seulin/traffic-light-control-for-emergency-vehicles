@@ -20,26 +20,37 @@ from sumo_rl.exploration.epsilon_greedy import EpsilonGreedy
 from map_file import get_map, out_folder
 import time
 
+def write(array):
+    f = open("travel_time.txt", "a")
+    for i in array:
+        f.write(str(i)+", ")
+    f.write("\n")
+    f.close()
+
 if __name__ == '__main__':
 
     alpha = 0.1
     gamma = 0.99
-    runs = 30
+    runs = 1
 
     try:
-        tag = int(sys.argv[1])
+        tag = int(sys.argv[2])
     except IndexError:
         tag = 2
+    try:
+        gui = int(sys.argv[1])
+    except IndexError:
+        gui = 0 # False
 
     net_file, rou_file = get_map(tag)
 
     env = sumo_rl.env(
                           net_file=net_file,
                           route_file=rou_file,
-                          use_gui=True,
+                          use_gui=gui,
                           min_green=8,
                           delta_time=5,
-                          num_seconds=80000)
+                          num_seconds=500000)
 
     for run in range(1, runs+1):
 
@@ -65,28 +76,31 @@ if __name__ == '__main__':
 
             if i % 1000 == 0:
                 print("CURRENT LOOP", i, time.time()-start)
+                print("SIM STEP ", env.unwrapped.env.sim_step)
             ###
 
             s, r, done, info = env.last()
             if ql_agents[agent].action is not None:
                 ql_agents[agent].learn(next_state=env.unwrapped.env.encode(s, agent), reward=r)
+            
 
             action = ql_agents[agent].act() if not done else None
             env.step(action)
 
             ###
-            if i % 5000 == 0:
-                env.unwrapped.env.save_csv(out_folder(tag) + f'QL{i}_{time.localtime().tm_hour}_{time.localtime().tm_min}', run)
-                print("EV Travel time", env.unwrapped.env.ev_travel_time)
+            if i % 100000 == 0 and i > 0:
+                # print("QTAB:E", ql_agents[agent].q_table)
+                env.unwrapped.env.save_csv(out_folder(tag) + f'QL_{time.localtime().tm_hour}_{time.localtime().tm_min}', run)
+                env.unwrapped.env.save_travel_time(out_folder(tag))
             ###
 
         ###
-        print('EV Travel time', env.unwrapped.env.ev_travel_time)
+        env.unwrapped.env.save_travel_time(out_folder(tag))
         env.unwrapped.env.save_csv(out_folder(tag) + f'QL_{time.localtime().tm_hour}_{time.localtime().tm_min}', run)
         ###
 
         env.close()
 
-        print("Elapsed time: ", time.time()-start)
+        print("End of run, Elapsed time: ", time.time()-start)
 
 # %%
