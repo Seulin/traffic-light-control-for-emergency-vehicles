@@ -17,6 +17,10 @@ from gym.envs.registration import EnvSpec
 import numpy as np
 import pandas as pd
 
+###
+import time
+###
+
 from .traffic_signal import TrafficSignal
 
 from gym.utils import EzPickle, seeding
@@ -177,9 +181,9 @@ class SumoEnvironment(gym.Env):
         self.run += 1
         self.metrics = []
 
-    
-        num_ev = 50
-        self.ev_travel_time = [0 for i in range(num_ev)]
+        ###
+        self.ev_travel_time = {}
+        ###
 
         if seed is not None:
             self.sumo_seed = seed
@@ -259,6 +263,20 @@ class SumoEnvironment(gym.Env):
         self.metrics.append(info)
         return info
 
+    ###
+    def _emergency_vehicle_speed(self):
+        speed = []
+        for veh in self.current_ev:
+            try:
+                speed.append(self.sumo.vehicle.getSpeed(veh))
+            except:
+                pass
+        if speed != []:
+            return sum(speed) / len(speed)
+        else:
+            return 0
+    ###
+
     def _compute_observations(self):
         self.observations.update({ts: self.traffic_signals[ts].compute_observation() for ts in self.ts_ids if self.traffic_signals[ts].time_to_act})
         return {ts: self.observations[ts].copy() for ts in self.observations.keys() if self.traffic_signals[ts].time_to_act}
@@ -271,18 +289,10 @@ class SumoEnvironment(gym.Env):
             if veh.startswith("EV_flow"):
                 self.current_ev.append(veh)
         self.get_travel_time()
-        def _emergency_vehicle_reward(self):
-            speed = []
-            for veh in self.current_ev:
-                try:
-                    speed.append(self.sumo.vehicle.getSpeed(veh))
-                except:
-                    pass
-            if speed != []:
-                return sum(speed) / len(speed)
-            else:
-                return 0
-        ev_reward = _emergency_vehicle_reward(self)
+        avg_speed = self._emergency_vehicle_speed()
+        ev_reward = avg_speed
+        if avg_speed < 0.5:
+            ev_reward = -10
         ###
         self.rewards.update({ts: self.traffic_signals[ts].compute_reward()+ev_reward for ts in self.ts_ids if self.traffic_signals[ts].time_to_act})
         return {ts: self.rewards[ts] for ts in self.rewards.keys() if self.traffic_signals[ts].time_to_act}
@@ -324,10 +334,15 @@ class SumoEnvironment(gym.Env):
             try:
                 if self.sumo.vehicle.getLaneID(veh).startswith("h21"):
                 #if "A3top0" == self.sumo.vehicle.getLaneID(id):
-                    self.ev_travel_time[index] = self.sumo.vehicle.getTimeLoss(veh)
+                    if veh not in self.ev_travel_time:
+                        self.ev_travel_time[veh] = self.sumo.vehicle.getTimeLoss(veh)
             except:
                 pass
         return self.ev_travel_time
+
+    def save_travel_time(self, out_folder):
+        df = pd.DataFrame.from_dict(self.ev_travel_time, orient="index", columns=["t-time"])
+        df.to_csv(f"{out_folder}/travel_time/tt_{time.localtime().tm_hour}_{time.localtime().tm_min}.csv")
     ###
 
     def close(self):
@@ -365,14 +380,23 @@ class SumoEnvironment(gym.Env):
     # Below functions are for discrete state space
 
     def encode(self, state, ts_id):
+        num_lanes = len(self.traffic_signals[ts_id].lanes)
+
         phase = int(np.where(state[:self.traffic_signals[ts_id].num_green_phases] == 1)[0])
         min_green = state[self.traffic_signals[ts_id].num_green_phases]
-        density_queue = [self._discretize_density(d) for d in state[self.traffic_signals[ts_id].num_green_phases + 1:]]
+        density_queue = [self._discretize_density(d) for d in state[self.traffic_signals[ts_id].num_green_phases + 1:-num_lanes]]
+        ###
+        ev_info = state[-num_lanes:].tolist()
+        ###
         # tuples are hashable and can be used as key in python dictionary
-        return tuple([phase, min_green] + density_queue)
+        return tuple([phase, min_green] + density_queue + ev_info)
 
     def _discretize_density(self, density):
-        return min(int(density*10), 9)
+        # return min(int(density*10), 9)
+        res = min(int(density*10), 9) # 0 ~ 9
+        return int(res > 4)
+
+
 
 
 class SumoEnvironmentPZ(AECEnv, EzPickle):
