@@ -36,7 +36,7 @@ if __name__ == '__main__':
     env = sumo_rl.env(
                           net_file=net_file,
                           route_file=rou_file,
-                          use_gui=False,
+                          use_gui=True,
                           min_green=8,
                           delta_time=5,
                           num_seconds=80000)
