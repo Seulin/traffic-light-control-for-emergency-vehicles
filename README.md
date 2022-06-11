@@ -11,3 +11,9 @@ Training result stored here.
 
 ### map_file.py
 Code that determines the map and route according to map_number.
+
+### sumo-rl/sumo_rl/agents/ql_agent.py
+Q learning agent is implemented here.
+
+### sumo-rl/sumo_rl/environment/traffic_signal.py
+Traffic light is implemented here. You can also modify reward model here.
